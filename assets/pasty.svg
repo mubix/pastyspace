@@ -1,0 +1,155 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 540 480" fill="none">
+  <title>Pasty, a happy clipboard orbiting its own little planet</title>
+  <ellipse
+    cx="265"
+    cy="251"
+    rx="241"
+    ry="102"
+    transform="rotate(-24 265 251)"
+    stroke="#153949"
+    stroke-width="2"
+    stroke-dasharray="5 9"
+    opacity=".35"
+  />
+  <circle cx="273" cy="236" r="179" fill="#ddf5fa" />
+  <path
+    d="m104 130 8-20 8 20 20 8-20 8-8 20-8-20-20-8Z"
+    fill="#f17c67"
+    stroke="#153949"
+    stroke-width="3"
+  />
+  <path
+    d="m425 333 5-13 5 13 13 5-13 5-5 13-5-13-13-5Z"
+    fill="#ffdc59"
+    stroke="#153949"
+    stroke-width="3"
+  />
+  <path
+    d="M200 315c-20 28-35 40-51 46m166-44c5 35 15 52 32 63"
+    stroke="#153949"
+    stroke-width="8"
+    stroke-linecap="round"
+  />
+  <path
+    d="m153 350-15 12 21 7m177 3 9 17 17-12"
+    stroke="#153949"
+    stroke-width="8"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+  <path
+    d="M188 230c-27-3-41-17-48-34m-3 5-6-16m13 10 1-13m-10 18-15-6M350 210c25-15 41-37 46-62m-2 5-4-17m8 13 10-13m-12 20 17-2"
+    stroke="#153949"
+    stroke-width="7"
+    stroke-linecap="round"
+  />
+  <g transform="rotate(12 270 219)">
+    <path
+      d="M197 106h120l39 43v159a18 18 0 0 1-18 18H197a18 18 0 0 1-18-18V124a18 18 0 0 1 18-18Z"
+      fill="#153949"
+      transform="translate(7 9)"
+    />
+    <path
+      d="M197 106h120l39 43v159a18 18 0 0 1-18 18H197a18 18 0 0 1-18-18V124a18 18 0 0 1 18-18Z"
+      fill="#ffdc59"
+      stroke="#153949"
+      stroke-width="4"
+    />
+    <path d="M317 108v42h37" fill="#ffe998" />
+    <path
+      d="M317 108v42h37"
+      stroke="#153949"
+      stroke-width="4"
+      stroke-linejoin="round"
+    />
+    <rect
+      x="222"
+      y="92"
+      width="70"
+      height="31"
+      rx="10"
+      fill="#f7fcfc"
+      stroke="#153949"
+      stroke-width="4"
+    />
+    <path
+      d="M230 188v16m68-16v16"
+      stroke="#153949"
+      stroke-width="9"
+      stroke-linecap="round"
+    />
+    <path
+      d="M240 224c12 20 34 20 47 0"
+      stroke="#153949"
+      stroke-width="5"
+      stroke-linecap="round"
+    />
+    <ellipse cx="219" cy="218" rx="12" ry="7" fill="#f17c67" />
+    <ellipse cx="311" cy="218" rx="12" ry="7" fill="#f17c67" />
+    <path
+      d="m226 273-12 10 12 10m68-20 12 10-12 10m-22-21-8 23"
+      stroke="#153949"
+      stroke-width="4"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    />
+  </g>
+  <path
+    d="M51 316c11 52 143 31 283-34 106-49 172-110 146-137"
+    stroke="#153949"
+    stroke-width="3.5"
+    stroke-linecap="round"
+  />
+  <circle
+    cx="400"
+    cy="245"
+    r="12"
+    fill="#f17c67"
+    stroke="#153949"
+    stroke-width="3.5"
+  />
+  <g transform="rotate(-14 98 291)">
+    <rect
+      x="51"
+      y="272"
+      width="91"
+      height="41"
+      rx="8"
+      fill="#f7fcfc"
+      stroke="#153949"
+      stroke-width="2"
+    />
+    <text
+      x="96"
+      y="299"
+      text-anchor="middle"
+      fill="#153949"
+      font-family="monospace"
+      font-size="21"
+    >
+      .txt
+    </text>
+  </g>
+  <g transform="rotate(11 421 118)">
+    <rect
+      x="377"
+      y="97"
+      width="91"
+      height="41"
+      rx="8"
+      fill="#f7fcfc"
+      stroke="#153949"
+      stroke-width="2"
+    />
+    <text
+      x="422"
+      y="125"
+      text-anchor="middle"
+      fill="#153949"
+      font-family="monospace"
+      font-size="21"
+    >
+      .png
+    </text>
+  </g>
+</svg>

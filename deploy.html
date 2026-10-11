@@ -1,0 +1,566 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#bfe9f2" />
+    <meta
+      name="description"
+      content="Run your own PastySpace pastebin with Docker Compose. A practical guide to setup, storage, configuration, access and curl commands."
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="How to deploy — PastySpace" />
+    <meta
+      property="og:description"
+      content="Run your own PastySpace pastebin with Docker Compose. A practical guide to setup, storage, configuration, access and curl commands."
+    />
+    <title>How to deploy — PastySpace</title>
+    <link rel="icon" type="image/svg+xml" href="assets/logo.svg" />
+    <link
+      rel="preload"
+      href="assets/fonts/bricolage-grotesque.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <link rel="stylesheet" href="assets/site.css" />
+    <script src="assets/site.js" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <header class="site-header">
+      <div class="wrap nav-row">
+        <a class="brand" href="./" aria-label="PastySpace home"
+          ><img
+            src="assets/logo.svg"
+            width="47"
+            height="47"
+            alt=""
+          />PastySpace</a
+        >
+        <nav class="site-nav" aria-label="Main navigation">
+          <a href="features.html">Features</a
+          ><a href="deploy.html" aria-current="page">How to deploy</a
+          ><a class="repo-link" href="https://github.com/mubix/pastyspace"
+            >GitHub
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.7"
+              aria-hidden="true"
+            >
+              <path d="M8 16 17 7M8 7h9v9" />
+              <path d="M19 13v6H5V5h6" /></svg
+          ></a>
+        </nav>
+      </div>
+    </header>
+    <main id="main">
+      <section class="page-intro">
+        <div class="wrap page-intro-inner">
+          <div>
+            <h1>A small launch.<br />A space of your own.</h1>
+            <p class="lead">
+              Bring a machine with Docker. We’ll bring the pastebin.
+            </p>
+          </div>
+          <div class="page-sticker" aria-hidden="true">
+            <svg
+              width="34"
+              height="34"
+              viewBox="0 0 32 32"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="m11 21 10-10M11 11h10v10" />
+              <path d="M7 25h18" /></svg
+            >Ready for<br />liftoff.
+          </div>
+        </div>
+      </section>
+      <div class="wrap section deploy-layout">
+        <nav class="toc" aria-label="On this page">
+          <p>On this page</p>
+          <a href="#quickstart">Get it running</a
+          ><a href="#configuration">Make it yours</a
+          ><a href="#storage">Storage &amp; upkeep</a
+          ><a href="#access">Sharing access</a
+          ><a href="#command-line">From the terminal</a
+          ><a href="#questions">Good to know</a>
+        </nav>
+        <div class="guide">
+          <section class="guide-section" id="quickstart">
+            <h2>Get it running.</h2>
+            <p>
+              You’ll need
+              <a href="https://docs.docker.com/engine/install/"
+                >Docker Engine</a
+              >
+              with the
+              <a href="https://docs.docker.com/compose/install/"
+                >Docker Compose plugin</a
+              >
+              (or Docker Desktop), plus Git.
+            </p>
+            <p>Clone the app’s <code>main</code> branch and start it:</p>
+            <div class="code-box">
+              <div class="code-heading">
+                <span>Build and start the app</span
+                ><button
+                  class="copy-button"
+                  type="button"
+                  data-copy="quickstart-command"
+                  aria-label="Copy Build and start the app"
+                  hidden
+                >
+                  Copy
+                </button>
+              </div>
+              <pre
+                tabindex="0"
+                aria-label="Build and start the app"
+              ><code id="quickstart-command">git clone --branch main https://github.com/mubix/pastyspace.git
+cd pastyspace
+docker compose up -d --build</code></pre>
+            </div>
+            <p>
+              Open
+              <a href="http://localhost:8000"
+                ><code>http://localhost:8000</code></a
+              >. Running it on another machine? Use that machine’s hostname or
+              IP address and port <code>8000</code>.
+            </p>
+            <p>
+              Choose <strong>New paste</strong>, add something, and click
+              <strong>Save &amp; lock</strong>. Or give the terminal a turn:
+            </p>
+            <div class="code-box">
+              <div class="code-heading">
+                <span>Create a test paste</span
+                ><button
+                  class="copy-button"
+                  type="button"
+                  data-copy="check-paste"
+                  aria-label="Copy Create a test paste"
+                  hidden
+                >
+                  Copy
+                </button>
+              </div>
+              <pre
+                tabindex="0"
+                aria-label="Create a test paste"
+              ><code id="check-paste">echo &quot;hello, space&quot; | curl --data-binary @- http://localhost:8000/</code></pre>
+            </div>
+            <p>
+              You’ll get a new paste URL back. Open it to see your first saved
+              paste.
+            </p>
+            <aside class="note">
+              <strong>The website and the app live in different places.</strong>
+              <p>
+                This site can run on GitHub Pages. PastySpace itself needs a
+                server that can run Python or Docker and store its SQLite
+                database. GitHub Pages can’t run the pastebin.
+              </p>
+            </aside>
+          </section>
+          <section class="guide-section" id="configuration">
+            <h2>Make it yours.</h2>
+            <p>
+              The included <code>docker-compose.yml</code> builds one container,
+              publishes port <code>8000</code>, and mounts a named volume for
+              your data.
+            </p>
+            <div class="table-scroll">
+              <table class="config-table">
+                <thead>
+                  <tr>
+                    <th scope="col">Setting</th>
+                    <th scope="col">Default &amp; behavior</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <th scope="row"><code>PASTY_MAX_MB</code></th>
+                    <td>
+                      <code>50</code>. Maximum request size in MB, including
+                      text, all files, and upload overhead.
+                    </td>
+                  </tr>
+                  <tr>
+                    <th scope="row"><code>PASTY_DB</code></th>
+                    <td>
+                      <code>/data/pastyspace.db</code> in Docker. Keep the
+                      database under the mounted <code>/data</code> directory so
+                      it survives container replacement.
+                    </td>
+                  </tr>
+                  <tr>
+                    <th scope="row">Published port</th>
+                    <td>
+                      <code>8000:8000</code>. Change the left-hand number to use
+                      a different port on your server.
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <h3>Need more room?</h3>
+            <p>
+              Edit the existing environment entry in
+              <code>docker-compose.yml</code>. For a 100 MB request limit:
+            </p>
+            <div class="code-box">
+              <div class="code-heading">
+                <span>docker-compose.yml — environment setting</span
+                ><button
+                  class="copy-button"
+                  type="button"
+                  data-copy="config-limit"
+                  aria-label="Copy docker-compose.yml — environment setting"
+                  hidden
+                >
+                  Copy
+                </button>
+              </div>
+              <pre
+                tabindex="0"
+                aria-label="docker-compose.yml — environment setting"
+              ><code id="config-limit">    environment:
+      PASTY_MAX_MB: &quot;100&quot;</code></pre>
+            </div>
+            <p>Then recreate the container with the new configuration:</p>
+            <div class="code-box">
+              <div class="code-heading">
+                <span>Apply configuration changes</span
+                ><button
+                  class="copy-button"
+                  type="button"
+                  data-copy="apply-config"
+                  aria-label="Copy Apply configuration changes"
+                  hidden
+                >
+                  Copy
+                </button>
+              </div>
+              <pre
+                tabindex="0"
+                aria-label="Apply configuration changes"
+              ><code id="apply-config">docker compose up -d</code></pre>
+            </div>
+            <p>
+              A shell variable or <code>.env</code> file alone won’t override
+              the value hardcoded in the supplied Compose file.
+            </p>
+          </section>
+          <section class="guide-section" id="storage">
+            <h2>Keep your little space running.</h2>
+            <p>
+              Pastes and attachments live in SQLite, in the named Docker volume
+              <code>pastydata</code> (usually prefixed with the Compose project
+              name). Paste bodies are stored as text; attached files are
+              base64-encoded.
+            </p>
+            <p>
+              Normal stops, restarts, and container rebuilds retain this volume.
+              There’s no automatic expiry.
+            </p>
+            <div class="code-box">
+              <div class="code-heading">
+                <span>Follow application logs</span
+                ><button
+                  class="copy-button"
+                  type="button"
+                  data-copy="show-logs"
+                  aria-label="Copy Follow application logs"
+                  hidden
+                >
+                  Copy
+                </button>
+              </div>
+              <pre
+                tabindex="0"
+                aria-label="Follow application logs"
+              ><code id="show-logs">docker compose logs -f pastyspace</code></pre>
+            </div>
+            <div class="code-box">
+              <div class="code-heading">
+                <span>Stop the app and keep its data</span
+                ><button
+                  class="copy-button"
+                  type="button"
+                  data-copy="stop-app"
+                  aria-label="Copy Stop the app and keep its data"
+                  hidden
+                >
+                  Copy
+                </button>
+              </div>
+              <pre
+                tabindex="0"
+                aria-label="Stop the app and keep its data"
+              ><code id="stop-app">docker compose down</code></pre>
+            </div>
+            <div class="code-box">
+              <div class="code-heading">
+                <span>Start the app again</span
+                ><button
+                  class="copy-button"
+                  type="button"
+                  data-copy="start-app"
+                  aria-label="Copy Start the app again"
+                  hidden
+                >
+                  Copy
+                </button>
+              </div>
+              <pre
+                tabindex="0"
+                aria-label="Start the app again"
+              ><code id="start-app">docker compose up -d</code></pre>
+            </div>
+            <h3>Updating the app</h3>
+            <p>
+              Back up any data you want to keep, then run this in your app
+              checkout. Resolve local changes before pulling.
+            </p>
+            <div class="code-box">
+              <div class="code-heading">
+                <span>Update your app checkout and rebuild</span
+                ><button
+                  class="copy-button"
+                  type="button"
+                  data-copy="update-app"
+                  aria-label="Copy Update your app checkout and rebuild"
+                  hidden
+                >
+                  Copy
+                </button>
+              </div>
+              <pre
+                tabindex="0"
+                aria-label="Update your app checkout and rebuild"
+              ><code id="update-app">git pull --ff-only
+docker compose up -d --build</code></pre>
+            </div>
+            <p>
+              For a file-level database backup, stop the app first and copy the
+              database directory from the volume. For a backup while running,
+              use
+              <a href="https://sqlite.org/backup.html">SQLite’s backup API</a>;
+              don’t copy only the live <code>.db</code> file because recent
+              writes may still be in its
+              <a href="https://sqlite.org/wal.html#the_wal_file">WAL file</a>.
+            </p>
+            <details>
+              <summary>Resetting all pastes</summary>
+              <div class="note danger-note">
+                <strong>This deletes your data.</strong>
+                <p>
+                  <code>docker compose down -v</code> removes the named volume
+                  and every paste and attachment inside it. Only use it when you
+                  deliberately want a fresh start.
+                </p>
+              </div>
+            </details>
+          </section>
+          <section class="guide-section" id="access">
+            <h2>Decide who gets a link.</h2>
+            <p>
+              The supplied Compose file publishes port <code>8000</code> on the
+              host’s interfaces. Anyone who can reach the app can create pastes
+              and read URLs they know, including attachment URLs. There’s no
+              built-in login, password protection, or rate limiting.
+            </p>
+            <p>
+              For a personal or team instance, use a trusted network or add
+              authentication at your reverse proxy. For an internet-facing
+              deployment, use HTTPS, set appropriate request limits at the
+              proxy, and keep the app port behind it.
+            </p>
+            <p>
+              When your proxy runs on the same host, bind the app to loopback by
+              changing the port mapping to <code>127.0.0.1:8000:8000</code>. A
+              proxy in another container needs its own network configuration.
+            </p>
+            <p>
+              The included server command trusts forwarded headers. Let only
+              your trusted proxy reach it and have the proxy set those headers
+              itself. Serve PastySpace at the root of its own hostname; its app
+              routes assume <code>/</code>.
+            </p>
+            <p>
+              HTTPS also makes browser clipboard features, such as copying an
+              image, work reliably. Localhost works for testing.
+            </p>
+          </section>
+          <section class="guide-section" id="command-line">
+            <h2>Your terminal is invited.</h2>
+            <p>
+              Replace <code>http://localhost:8000</code> with your instance’s
+              address. Text uploads return a URL that you can open or share.
+            </p>
+            <div class="code-box">
+              <div class="code-heading">
+                <span>Claim a named URL</span
+                ><button
+                  class="copy-button"
+                  type="button"
+                  data-copy="claim-url"
+                  aria-label="Copy Claim a named URL"
+                  hidden
+                >
+                  Copy
+                </button>
+              </div>
+              <pre
+                tabindex="0"
+                aria-label="Claim a named URL"
+              ><code id="claim-url">echo &quot;all systems go&quot; | curl --data-binary @- \
+  http://localhost:8000/mission-notes</code></pre>
+            </div>
+            <p>
+              Already claimed? The server responds with
+              <code>409 Conflict</code>. Existing pastes can’t be overwritten
+              through the app.
+            </p>
+            <div class="code-box">
+              <div class="code-heading">
+                <span>Upload a file with optional notes</span
+                ><button
+                  class="copy-button"
+                  type="button"
+                  data-copy="upload-file"
+                  aria-label="Copy Upload a file with optional notes"
+                  hidden
+                >
+                  Copy
+                </button>
+              </div>
+              <pre
+                tabindex="0"
+                aria-label="Upload a file with optional notes"
+              ><code id="upload-file">curl -F &quot;file=@screenshot.png&quot; -F &quot;body=Here is the screenshot&quot; \
+  http://localhost:8000/</code></pre>
+            </div>
+            <p>
+              Repeat <code>-F "file=@another-file"</code> to attach more files.
+              Add <code>-F "syntax=markdown"</code> or a language such as
+              <code>python</code> to choose the text format.
+            </p>
+            <div class="code-box">
+              <div class="code-heading">
+                <span>Read a paste as plain text</span
+                ><button
+                  class="copy-button"
+                  type="button"
+                  data-copy="read-raw"
+                  aria-label="Copy Read a paste as plain text"
+                  hidden
+                >
+                  Copy
+                </button>
+              </div>
+              <pre
+                tabindex="0"
+                aria-label="Read a paste as plain text"
+              ><code id="read-raw">curl http://localhost:8000/raw/mission-notes</code></pre>
+            </div>
+          </section>
+          <section class="guide-section" id="questions">
+            <h2>A few things to know.</h2>
+            <details>
+              <summary>Can I edit or delete a saved paste?</summary>
+              <p>
+                There are no edit or delete controls. Make a new paste to share
+                a revision. The server owner still controls the database; the
+                app’s write-once rule is not tamper-proof storage.
+              </p>
+            </details>
+            <details>
+              <summary>Why does an unused URL return 404?</summary>
+              <p>
+                That’s intentional. PastySpace serves the claim editor with a
+                404 status when a URL has no saved paste. Save it to create the
+                paste. Use the home page at <code>/</code> for a basic
+                availability check.
+              </p>
+            </details>
+            <details>
+              <summary>What names can I claim?</summary>
+              <p>
+                Names are lowercase and up to 100 characters. Start with a
+                letter or number, then use letters, numbers, dots, underscores,
+                or hyphens. Some names are reserved for app routes. You only
+                claim the URL when you save, so someone else could save there
+                first.
+              </p>
+            </details>
+            <details>
+              <summary>Why was my upload rejected?</summary>
+              <p>
+                The default limit is 50 MB for the entire request, including
+                multipart overhead. Text and all attachments share it. Check
+                both <code>PASTY_MAX_MB</code> and any upload limit at your
+                reverse proxy.
+              </p>
+            </details>
+            <details>
+              <summary>Can I run it without Docker?</summary>
+              <p>
+                Yes. Install the packages in <code>requirements.txt</code> into
+                a Python virtual environment and run with a production WSGI
+                server such as the included Gunicorn. Direct execution defaults
+                to <code>data/pastyspace.db</code> in the application directory,
+                unless <code>PASTY_DB</code> is set. The included Docker
+                configuration is the simplest documented setup.
+              </p>
+            </details>
+            <p class="source-note">
+              More detail:
+              <a href="https://github.com/mubix/pastyspace">app source</a>,
+              <a href="https://docs.docker.com/reference/cli/docker/compose/up/"
+                >Docker Compose up</a
+              >, and
+              <a
+                href="https://docs.docker.com/reference/cli/docker/compose/down/"
+                >Docker Compose down</a
+              >.
+            </p>
+          </section>
+          <div class="deploy-ending">
+            <img src="assets/logo.svg" width="80" height="80" alt="" />
+            <div>
+              <h3>You’ve made some space.</h3>
+              <p>
+                Now put something in it. Your next good snippet deserves a URL.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+    <footer class="site-footer">
+      <div class="wrap footer-row">
+        <div>
+          <a class="footer-brand" href="./">PastySpace</a>
+          <p>A tiny pastebin with a little personality.</p>
+        </div>
+        <nav class="footer-links" aria-label="Footer navigation">
+          <a href="features.html">Features</a
+          ><a href="deploy.html">Deploy your own</a
+          ><a href="https://github.com/mubix/pastyspace">Source on GitHub</a>
+        </nav>
+      </div>
+    </footer>
+    <div
+      id="copy-status"
+      class="sr-only"
+      role="status"
+      aria-live="polite"
+    ></div>
+  </body>
+</html>

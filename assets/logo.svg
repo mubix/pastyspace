@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80" fill="none">
+  <title>PastySpace orbital clipboard</title>
+  <path
+    d="M17 24C-6 52 2 66 32 59M55 19C83 11 90 27 62 51"
+    stroke="#153949"
+    stroke-width="4"
+    stroke-linecap="round"
+  />
+  <g transform="rotate(12 40 39)">
+    <path
+      d="M21 11h30l12 13v36a7 7 0 0 1-7 7H21a7 7 0 0 1-7-7V18a7 7 0 0 1 7-7Z"
+      fill="#ffdc59"
+      stroke="#153949"
+      stroke-width="3.5"
+    />
+    <path
+      d="M50 12v13h12"
+      stroke="#153949"
+      stroke-width="3.5"
+      stroke-linejoin="round"
+    />
+    <rect
+      x="25"
+      y="7"
+      width="22"
+      height="10"
+      rx="4"
+      fill="#f7fcfc"
+      stroke="#153949"
+      stroke-width="3.5"
+    />
+    <path
+      d="M26 35v5m18-5v5m-17 9c4 6 12 6 16 0"
+      stroke="#153949"
+      stroke-width="3.5"
+      stroke-linecap="round"
+    />
+  </g>
+  <path
+    d="M7 57c10 6 33-1 51-15"
+    stroke="#153949"
+    stroke-width="4"
+    stroke-linecap="round"
+  />
+  <circle
+    cx="67"
+    cy="40"
+    r="5"
+    fill="#f17c67"
+    stroke="#153949"
+    stroke-width="3"
+  />
+</svg>
