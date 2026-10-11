@@ -1,0 +1,238 @@
+{% extends "base.html" %}
+{% block title %}Claim /{{ slug }} · PastySpace{% endblock %}
+{% block content %}
+<div class="panel claim-banner">
+  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+  <div>
+    <div>Nothing lives at <span class="slug">/{{ slug }}</span> yet. Claim it?</div>
+    <p>Once you save, this paste is locked forever. No edits, by you or anyone else.</p>
+  </div>
+</div>
+
+<form class="panel editor" id="editor">
+  <div class="editor-row">
+    <input type="text" id="title" placeholder="Title (optional)" maxlength="200">
+    <select id="syntax" title="Format">
+      <option value="auto">Auto-detect code</option>
+      <option value="plaintext">Plain text</option>
+      <option value="markdown">Markdown</option>
+      <option value="html-render">HTML (rendered)</option>
+      <optgroup label="Language">
+        <option value="bash">Bash / Shell</option>
+        <option value="powershell">PowerShell</option>
+        <option value="python">Python</option>
+        <option value="javascript">JavaScript</option>
+        <option value="typescript">TypeScript</option>
+        <option value="json">JSON</option>
+        <option value="yaml">YAML</option>
+        <option value="xml">XML / HTML source</option>
+        <option value="sql">SQL</option>
+        <option value="c">C</option>
+        <option value="cpp">C++</option>
+        <option value="csharp">C#</option>
+        <option value="go">Go</option>
+        <option value="rust">Rust</option>
+        <option value="java">Java</option>
+        <option value="php">PHP</option>
+        <option value="ruby">Ruby</option>
+        <option value="ini">INI / TOML / conf</option>
+        <option value="dockerfile">Dockerfile</option>
+        <option value="diff">Diff</option>
+        <option value="x86asm">x86 Assembly</option>
+      </optgroup>
+    </select>
+  </div>
+
+  <textarea id="body" placeholder="Paste or type here. Ctrl+V a screenshot, drop files anywhere on the page. Ctrl+Enter saves." spellcheck="false" autofocus></textarea>
+
+  <div class="rich-notice" id="richNotice">
+    <span>Formatted text detected. It was pasted as plain text.</span>
+    <button type="button" class="btn btn-small" id="keepRich">Keep formatting (Markdown)</button>
+    <button type="button" class="btn btn-small" id="dismissRich">Dismiss</button>
+  </div>
+
+  <div class="dropzone" id="dropzone">
+    Drop files here, paste an image, or
+    <label class="btn btn-small" style="margin-left:4px">browse<input type="file" id="picker" multiple hidden></label>
+  </div>
+  <div class="attachments" id="attachments"></div>
+
+  <div class="editor-actions">
+    <span class="muted" style="font-size:13px" id="sizeInfo">Max {{ max_mb }} MB total</span>
+    <span class="err" id="err"></span>
+    <button class="btn btn-primary" type="submit" id="save">Save &amp; lock</button>
+  </div>
+</form>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='vendor/turndown.js') }}"></script>
+<script>
+let SLUG = {{ slug|tojson }};
+const MAX = {{ max_mb }} * 1024 * 1024;
+const body = document.getElementById('body');
+const attEl = document.getElementById('attachments');
+const err = document.getElementById('err');
+const files = [];  // {file, url}
+
+const FILE_ICON = '<svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>';
+
+function totalSize() { return files.reduce((a, f) => a + f.file.size, 0) + new Blob([body.value]).size; }
+function updateSize() {
+  const t = totalSize();
+  document.getElementById('sizeInfo').textContent = humanSize(t) + ' of {{ max_mb }} MB';
+  document.getElementById('sizeInfo').style.color = t > MAX ? 'var(--danger)' : '';
+}
+
+function renderAtts() {
+  attEl.innerHTML = '';
+  files.forEach((f, i) => {
+    const d = document.createElement('div'); d.className = 'att';
+    const thumb = document.createElement('div'); thumb.className = 'thumb';
+    if (f.file.type.startsWith('image/')) {
+      const img = document.createElement('img'); img.src = f.url; thumb.appendChild(img);
+    } else thumb.innerHTML = FILE_ICON;
+    const meta = document.createElement('div'); meta.className = 'meta';
+    const nm = document.createElement('div'); nm.className = 'name'; nm.textContent = f.file.name; nm.title = f.file.name;
+    const sz = document.createElement('div'); sz.className = 'muted'; sz.textContent = humanSize(f.file.size);
+    meta.append(nm, sz);
+    const x = document.createElement('button'); x.type = 'button'; x.className = 'x'; x.textContent = '×'; x.title = 'Remove';
+    x.onclick = () => { URL.revokeObjectURL(f.url); files.splice(i, 1); renderAtts(); };
+    d.append(thumb, meta, x); attEl.appendChild(d);
+  });
+  updateSize();
+}
+
+function addFiles(list) {
+  for (let file of list) {
+    if (!file) continue;
+    // Clipboard screenshots arrive as "image.png" — give them a unique, useful name.
+    if (/^image\.(png|jpe?g|gif|webp)$/i.test(file.name) || !file.name) {
+      const ext = (file.type.split('/')[1] || 'bin').replace('jpeg', 'jpg');
+      const stamp = new Date().toISOString().replace(/[:T]/g, '-').slice(0, 19);
+      file = new File([file], `pasted-${stamp}-${files.length + 1}.${ext}`, {type: file.type});
+    }
+    files.push({file, url: URL.createObjectURL(file)});
+  }
+  renderAtts();
+}
+
+// --- Rich text paste -> optional Markdown conversion ---
+let richPaste = null;
+const turndown = new TurndownService({headingStyle: 'atx', codeBlockStyle: 'fenced', bulletListMarker: '-'});
+turndown.remove(['script', 'style', 'meta', 'title']);
+
+function insertAtCursor(el, text) {
+  const s = el.selectionStart, e = el.selectionEnd;
+  el.setRangeText(text, s, e, 'end');
+  el.dispatchEvent(new Event('input'));
+  return s;
+}
+
+document.addEventListener('paste', e => {
+  const cd = e.clipboardData; if (!cd) return;
+  const pastedFiles = [...cd.files];
+  if (!pastedFiles.length) {
+    for (const it of cd.items || []) if (it.kind === 'file') { const f = it.getAsFile(); if (f) pastedFiles.push(f); }
+  }
+  const text = cd.getData('text/plain');
+  const html = cd.getData('text/html');
+
+  // Files/images (screenshots, files copied from a file manager)
+  if (pastedFiles.length && !text) {
+    e.preventDefault(); addFiles(pastedFiles);
+    toast(pastedFiles.length + ' file' + (pastedFiles.length > 1 ? 's' : '') + ' attached');
+    return;
+  }
+  if (pastedFiles.length && text) {
+    // e.g. copying an image from a browser gives both — keep the image, let text paste normally.
+    addFiles(pastedFiles);
+  }
+  if (e.target !== body && e.target.tagName !== 'INPUT') {
+    // Paste anywhere on the page goes into the body.
+    if (text) { e.preventDefault(); body.focus(); insertAtCursor(body, text); }
+  }
+  if (html && text && e.target !== document.getElementById('title')) {
+    // Only offer conversion if the HTML has real formatting.
+    if (/<(b|strong|i|em|h[1-6]|ul|ol|li|table|a |pre|code|blockquote|img)\b/i.test(html)) {
+      setTimeout(() => {
+        richPaste = {html, text, start: body.selectionEnd - text.replace(/\r\n/g, '\n').length};
+        document.getElementById('richNotice').classList.add('show');
+      }, 0);
+    }
+  }
+});
+
+document.getElementById('keepRich').onclick = () => {
+  if (!richPaste) return;
+  let md = turndown.turndown(richPaste.html).trim();
+  const plain = richPaste.text.replace(/\r\n/g, '\n');
+  const at = body.value.substr(richPaste.start, plain.length) === plain ? richPaste.start : body.value.indexOf(plain);
+  if (at >= 0) body.value = body.value.slice(0, at) + md + body.value.slice(at + plain.length);
+  else body.value += (body.value ? '\n\n' : '') + md;
+  document.getElementById('syntax').value = 'markdown';
+  document.getElementById('richNotice').classList.remove('show');
+  richPaste = null; updateSize();
+  toast('Converted to Markdown');
+};
+document.getElementById('dismissRich').onclick = () => {
+  document.getElementById('richNotice').classList.remove('show'); richPaste = null;
+};
+
+// --- Drag and drop anywhere ---
+let dragDepth = 0;
+window.addEventListener('dragenter', e => { if ([...e.dataTransfer.types].includes('Files')) { dragDepth++; document.body.classList.add('dragging'); } });
+window.addEventListener('dragleave', () => { if (--dragDepth <= 0) { dragDepth = 0; document.body.classList.remove('dragging'); } });
+window.addEventListener('dragover', e => e.preventDefault());
+window.addEventListener('drop', e => {
+  e.preventDefault(); dragDepth = 0; document.body.classList.remove('dragging');
+  if (e.dataTransfer.files.length) addFiles(e.dataTransfer.files);
+  else {
+    const t = e.dataTransfer.getData('text/plain');
+    if (t) { body.focus(); insertAtCursor(body, t); }
+  }
+});
+document.getElementById('picker').addEventListener('change', e => { addFiles(e.target.files); e.target.value = ''; });
+
+// Tab key inserts a tab instead of leaving the textarea
+body.addEventListener('keydown', e => {
+  if (e.key === 'Tab' && !e.shiftKey && !e.ctrlKey && !e.metaKey) { e.preventDefault(); insertAtCursor(body, '\t'); }
+});
+body.addEventListener('input', updateSize);
+document.addEventListener('keydown', e => {
+  if ((e.ctrlKey || e.metaKey) && (e.key === 'Enter' || e.key === 's')) { e.preventDefault(); document.getElementById('editor').requestSubmit(); }
+});
+
+// --- Save ---
+document.getElementById('editor').addEventListener('submit', async e => {
+  e.preventDefault(); err.textContent = '';
+  if (!body.value.trim() && !files.length) { err.textContent = 'Nothing to save yet.'; return; }
+  if (totalSize() > MAX) { err.textContent = 'Too large. Max {{ max_mb }} MB.'; return; }
+  const fd = new FormData();
+  fd.append('title', document.getElementById('title').value);
+  fd.append('syntax', document.getElementById('syntax').value);
+  fd.append('body', body.value);
+  files.forEach(f => fd.append('file', f.file, f.file.name));
+  const btn = document.getElementById('save'); btn.disabled = true; btn.textContent = 'Saving…';
+  try {
+    const r = await fetch('/' + encodeURIComponent(SLUG), {method: 'POST', body: fd, headers: {'Accept': 'application/json'}});
+    const j = await r.json().catch(() => ({error: 'HTTP ' + r.status}));
+    if (r.ok) { location.replace('/' + encodeURIComponent(j.slug)); return; }
+    if (r.status === 409) {
+      err.innerHTML = 'Someone just claimed this URL. <a href="/' + encodeURIComponent(SLUG) + '" target="_blank">See it</a> or <a href="#" id="regen">use a new random URL</a>.';
+      const rg = document.getElementById('regen');
+      if (rg) rg.onclick = async ev => {
+        ev.preventDefault();
+        const s = (await (await fetch('/api/random-slug')).json()).slug;
+        SLUG = s; history.replaceState(null, '', '/' + s);
+        document.querySelector('.claim-banner .slug').textContent = '/' + s;
+        document.title = 'Claim /' + s + ' · PastySpace';
+        document.getElementById('editor').requestSubmit();
+      };
+    } else err.textContent = j.error || 'Save failed';
+  } catch (ex) { err.textContent = 'Network error: ' + ex.message; }
+  btn.disabled = false; btn.textContent = 'Save & lock';
+});
+updateSize();
+</script>
+{% endblock %}

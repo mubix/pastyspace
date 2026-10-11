@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}PastySpace{% endblock %}</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect x='6' y='4' width='20' height='25' rx='3' fill='%23f5b041'/><rect x='11' y='2' width='10' height='6' rx='2' fill='%232b2f3a'/><rect x='10' y='13' width='12' height='2' fill='%232b2f3a'/><rect x='10' y='18' width='9' height='2' fill='%232b2f3a'/></svg>">
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+{% block head %}{% endblock %}
+</head>
+<body>
+<header class="topbar">
+  <a class="brand" href="{{ url_for('index') }}">
+    <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true"><rect x="6" y="4" width="20" height="25" rx="3" fill="var(--accent)"/><rect x="11" y="2" width="10" height="6" rx="2" fill="var(--bg)"/><rect x="10" y="13" width="12" height="2" fill="var(--bg)"/><rect x="10" y="18" width="9" height="2" fill="var(--bg)"/></svg>
+    <b>Pasty<span>Space</span></b>
+  </a>
+  <nav>
+    <a class="btn btn-primary" href="{{ url_for('new') }}">+ New paste</a>
+  </nav>
+</header>
+<main>
+{% block content %}{% endblock %}
+</main>
+<div id="toast" role="status" aria-live="polite"></div>
+<script>
+function toast(msg, ms) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove('show'), ms || 2200);
+}
+function humanSize(n) {
+  const u = ['B','KB','MB','GB']; let i = 0;
+  while (n >= 1024 && i < u.length - 1) { n /= 1024; i++; }
+  return (i ? n.toFixed(1) : n) + ' ' + u[i];
+}
+async function copyText(s, label) {
+  try { await navigator.clipboard.writeText(s); }
+  catch (e) {
+    const ta = document.createElement('textarea'); ta.value = s; document.body.appendChild(ta);
+    ta.select(); document.execCommand('copy'); ta.remove();
+  }
+  toast((label || 'Copied') + ' to clipboard');
+}
+</script>
+{% block scripts %}{% endblock %}
+</body>
+</html>
