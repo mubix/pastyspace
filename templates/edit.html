@@ -5,14 +5,14 @@
   <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
   <div>
     <div>Nothing lives at <span class="slug">/{{ slug }}</span> yet. Claim it?</div>
-    <p>Once you save, this paste is locked forever. No edits, by you or anyone else.</p>
+    <p>Save once, then share the link. This paste can’t be edited or overwritten afterward.</p>
   </div>
 </div>
 
 <form class="panel editor" id="editor">
   <div class="editor-row">
-    <input type="text" id="title" placeholder="Title (optional)" maxlength="200">
-    <select id="syntax" title="Format">
+    <input type="text" id="title" placeholder="Title (optional)" aria-label="Title (optional)" maxlength="200">
+    <select id="syntax" title="Format" aria-label="Format">
       <option value="auto">Auto-detect code</option>
       <option value="plaintext">Plain text</option>
       <option value="markdown">Markdown</option>
@@ -43,7 +43,7 @@
     </select>
   </div>
 
-  <textarea id="body" placeholder="Paste or type here. Ctrl+V a screenshot, drop files anywhere on the page. Ctrl+Enter saves." spellcheck="false" autofocus></textarea>
+  <textarea id="body" aria-label="Paste content" placeholder="Paste or type here. Ctrl+V a screenshot, drop files anywhere on the page. Ctrl+Enter saves." spellcheck="false" autofocus></textarea>
 
   <div class="rich-notice" id="richNotice">
     <span>Formatted text detected. It was pasted as plain text.</span>
@@ -53,13 +53,13 @@
 
   <div class="dropzone" id="dropzone">
     Drop files here, paste an image, or
-    <label class="btn btn-small" style="margin-left:4px">browse<input type="file" id="picker" multiple hidden></label>
+    <label class="btn btn-small file-picker">browse<input type="file" id="picker" aria-label="Browse files to attach" multiple></label>
   </div>
   <div class="attachments" id="attachments"></div>
 
   <div class="editor-actions">
     <span class="muted" style="font-size:13px" id="sizeInfo">Max {{ max_mb }} MB total</span>
-    <span class="err" id="err"></span>
+    <span class="err" id="err" role="alert"></span>
     <button class="btn btn-primary" type="submit" id="save">Save &amp; lock</button>
   </div>
 </form>

@@ -1,25 +1,35 @@
 {% extends "base.html" %}
+{% block title %}PastySpace · Your clipboard, with a URL{% endblock %}
 {% block content %}
 <section class="hero">
-  <h1>Pasty<span>Space</span></h1>
-  <p>Paste text, code, screenshots or files. Once it's saved, nobody can change it.</p>
-  <a class="btn btn-primary" href="{{ url_for('new') }}">+ Create new paste</a>
-  <form class="claim-form" id="claim">
-    <span class="prefix">{{ request.host }}/</span>
-    <input type="text" id="slug" placeholder="pick-your-own-url" autocomplete="off" spellcheck="false" maxlength="100">
-    <button class="btn" type="submit">Go / claim</button>
-  </form>
-  <p class="muted" style="margin-top:18px;font-size:13px">{{ count }} paste{{ '' if count == 1 else 's' }} so far</p>
+  <div class="hero-copy">
+    <h1>Your clipboard,<br>with a URL.</h1>
+    <p>A little home for code, notes, screenshots, and files.<br class="wide-only"> Paste it. Lock it. Pass it on.</p>
+    <a class="btn btn-primary" href="{{ url_for('new') }}">+ Create new paste</a>
+    <form class="claim-form" id="claim">
+      <label for="slug">Or pick a name for your paste</label>
+      <div class="claim-address">
+        <span class="prefix" aria-hidden="true">/</span>
+        <input type="text" id="slug" placeholder="mission-notes" autocomplete="off" spellcheck="false" maxlength="100" required>
+        <button class="btn" type="submit">Go / claim</button>
+      </div>
+    </form>
+  </div>
+  <figure class="hero-mascot">
+    <img src="{{ url_for('static', filename='brand/pasty.svg') }}" width="540" height="480" alt="A smiling clipboard orbiting with text and image files.">
+    <figcaption>Small paste. Big universe.</figcaption>
+  </figure>
 </section>
+<div class="home-meta"><span>No accounts. Write once. Share the link.</span><span>{{ count }} paste{{ '' if count == 1 else 's' }} in this space</span></div>
 
-<div class="cards">
-  <div class="panel card"><h3>Paste anything</h3><p>Text, code, rich text from Word or web pages (kept as Markdown), screenshots straight from the clipboard, or files.</p></div>
-  <div class="panel card"><h3>Pick a URL</h3><p>Visit any URL. If nothing lives there yet, you can claim it. New pastes get a three-word name.</p></div>
-  <div class="panel card"><h3>Write once</h3><p>After a paste is saved it's locked. No edits and no overwrites, from anyone.</p></div>
+<div class="cards" aria-label="How PastySpace works">
+  <div class="card"><h2>Drop something in.</h2><p>A code snippet, a screenshot, a stack of files. You can even convert formatted text to Markdown.</p></div>
+  <div class="card"><h2>Find your space.</h2><p>Choose an unused URL, or get a random three-word name. The address is yours to claim when you save.</p></div>
+  <div class="card"><h2>Lock it. Link it.</h2><p>Save once and pass the link along. The app won’t let anyone edit or overwrite your paste afterward.</p></div>
 </div>
 
 <div class="panel cli">
-  <h3>From the command line</h3>
+  <h2>Also speaks fluent curl.</h2>
 <pre># random three-word URL
 <b>echo "hello" | curl --data-binary @- {{ request.host_url }}</b>
 # claim a specific URL

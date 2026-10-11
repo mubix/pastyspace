@@ -3,24 +3,34 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#14161c">
+<meta name="description" content="PastySpace: your clipboard, with a URL. Paste text, code, screenshots or files, save once, and share the link.">
 <title>{% block title %}PastySpace{% endblock %}</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect x='6' y='4' width='20' height='25' rx='3' fill='%23f5b041'/><rect x='11' y='2' width='10' height='6' rx='2' fill='%232b2f3a'/><rect x='10' y='13' width='12' height='2' fill='%232b2f3a'/><rect x='10' y='18' width='9' height='2' fill='%232b2f3a'/></svg>">
+<link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='brand/favicon-32.png') }}">
+<link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='brand/favicon.svg') }}">
+<link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='brand/apple-touch-icon.png') }}">
+<link rel="preload" href="{{ url_for('static', filename='fonts/bricolage-grotesque.woff2') }}" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 {% block head %}{% endblock %}
 </head>
 <body>
+<a class="skip-link" href="#main">Skip to content</a>
 <header class="topbar">
-  <a class="brand" href="{{ url_for('index') }}">
-    <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true"><rect x="6" y="4" width="20" height="25" rx="3" fill="var(--accent)"/><rect x="11" y="2" width="10" height="6" rx="2" fill="var(--bg)"/><rect x="10" y="13" width="12" height="2" fill="var(--bg)"/><rect x="10" y="18" width="9" height="2" fill="var(--bg)"/></svg>
+  <a class="brand" href="{{ url_for('index') }}" aria-label="PastySpace home">
+    <img src="{{ url_for('static', filename='brand/favicon.svg') }}" width="40" height="40" alt="">
     <b>Pasty<span>Space</span></b>
   </a>
-  <nav>
+  <nav aria-label="Main navigation">
     <a class="btn btn-primary" href="{{ url_for('new') }}">+ New paste</a>
   </nav>
 </header>
-<main>
+<main id="main">
 {% block content %}{% endblock %}
 </main>
+<footer class="site-footer">
+  <span>A little space for your paste.</span>
+  <a href="https://mubix.github.io/pastyspace/" target="_blank" rel="noopener noreferrer">About PastySpace<span class="sr-only"> (opens in a new tab)</span></a>
+</footer>
 <div id="toast" role="status" aria-live="polite"></div>
 <script>
 function toast(msg, ms) {
